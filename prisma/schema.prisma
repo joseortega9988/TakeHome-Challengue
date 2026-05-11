@@ -29,7 +29,11 @@ enum NotificationChannel {
   PUSH
 }
 
-
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
 
 model User {
   id           String  @id @default(uuid())
@@ -46,20 +50,28 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  notifications Notification[]
+
+
   @@index([email])
   @@map("users")
 }
 
 model Notification {
-  id        String   @id @default(uuid())
+  id        Int      @id @default(autoincrement())
 
   title     String
   content   String
 
-  channel   String
+  channel   NotificationChannel
+
+
 
   userId    String
   user      User @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+
 }
