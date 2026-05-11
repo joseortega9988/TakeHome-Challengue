@@ -16,7 +16,11 @@ Cada módulo tiene su propia carpeta de `dto` para definir los datos de entrada 
 - **JWT / JWS**: tokens firmados para mantener sesiones seguras.
 - **bcrypt**: encripta y verifica contraseñas.
 
+## IMPORTANTE
+CAMBIAR LA CLAVE DE POSTGRESS EN EL ARCHIVO docker-compeso.yml a la que este configurada en la computadora 
+
 ## Cómo iniciar el proyecto
+
 1. Instalar dependencias:
    ```bash
    npm install
