@@ -8,7 +8,7 @@ services:
 
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Ctfr9619
+      POSTGRES_PASSWORD: CTfr9619
       POSTGRES_DB: home_challenge
 
     ports:
