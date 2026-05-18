@@ -22,7 +22,7 @@ export class AuthService {
 
     // Register a new user 
     async register (registerDto: RegisterDto): Promise<AuthResponseDto> {
-        const { email, password, firstName, lastName } = registerDto;
+        const { email, password, firstName, lastName, pokemonIds } = registerDto;
 
         const existingUser = await this.usersService.findByEmail(email);
 
@@ -32,12 +32,13 @@ export class AuthService {
 
         try {
             const hashedPassword = await bcrypt.hash (password, this.SALT_ROUNDS);
+        // Le pasamos el arreglo al método create como segundo parámetro
             const user = await this.usersService.create({
-                    email,
-                    password: hashedPassword,
-                    firstName,
-                    lastName,
-                });
+                email,
+                password: hashedPassword,
+                firstName,
+                lastName,
+            }, pokemonIds);
             const tokens = await this.generateTokens (user.id, user.email)
             await this.usersService.updateRefreshToken(user.id, tokens.refreshToken);
 

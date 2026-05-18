@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { UsersModule } from './modules/users/users.module';
+import { ClientModule } from './modules/client/client.module';
 
 @Global ()
 @Module({
@@ -14,7 +15,7 @@ import { UsersModule } from './modules/users/users.module';
       isGlobal : true,
       envFilePath : '.env',
     }),
-    PrismaModule, AuthModule, NotificationsModule, UsersModule
+    PrismaModule, AuthModule, NotificationsModule, UsersModule, ClientModule
   ],
   controllers: [AppController],
   providers: [AppService],
