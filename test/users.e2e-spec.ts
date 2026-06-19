@@ -1,6 +1,16 @@
 import request from 'supertest';
 import { createTestApp } from './helpers';
-import nock from 'nock';
+import { setupServer } from 'msw/node';
+import { http, HttpResponse } from 'msw';
+
+const server = setupServer(
+  http.get('https://pokeapi.co/api/v2/pokemon/1', () =>
+    HttpResponse.json({ id: 1, name: 'bulbasaur' }),
+  ),
+  http.get('https://pokeapi.co/api/v2/pokemon/4', () =>
+    HttpResponse.json({ id: 4, name: 'charmander' }),
+  ),
+);
 
 describe('Users (e2e)', () => {
   let app: any;
@@ -8,35 +18,21 @@ describe('Users (e2e)', () => {
   let accessToken: string;
 
   beforeAll(async () => {
+    server.listen({ onUnhandledRequest: 'bypass' });
+
     const res = await createTestApp();
     app = res.app;
     prisma = res.prisma;
-
-    const registerDto = {
-      email: 'profile_user@example.com',
-      password: 'Password1@',
-      firstName: 'Profile',
-      lastName: 'User',
-      pokemonIds: [1, 4],
-    };
-
-    // Mock PokeAPI for profile fetching
-    nock('https://pokeapi.co').get('/api/v2/pokemon/1').reply(200, { id: 1, name: 'bulbasaur' });
-    nock('https://pokeapi.co').get('/api/v2/pokemon/4').reply(200, { id: 4, name: 'charmander' });
-
-    await request(app.getHttpServer()).post('/auth/register').send(registerDto).expect(201);
-    const login = await request(app.getHttpServer()).post('/auth/login').send({ email: registerDto.email, password: registerDto.password }).expect(200);
-    accessToken = login.body.accessToken;
   });
 
   afterAll(async () => {
     await app.close();
-    nock.cleanAll();
+    server.close();
   });
 
   beforeEach(async () => {
     await prisma.cleanDatabase();
-    // re-register user
+
     const registerDto = {
       email: 'profile_user@example.com',
       password: 'Password1@',
@@ -44,10 +40,12 @@ describe('Users (e2e)', () => {
       lastName: 'User',
       pokemonIds: [1, 4],
     };
-    nock('https://pokeapi.co').get('/api/v2/pokemon/1').reply(200, { id: 1, name: 'bulbasaur' });
-    nock('https://pokeapi.co').get('/api/v2/pokemon/4').reply(200, { id: 4, name: 'charmander' });
+
     await request(app.getHttpServer()).post('/auth/register').send(registerDto).expect(201);
-    const login = await request(app.getHttpServer()).post('/auth/login').send({ email: registerDto.email, password: registerDto.password }).expect(200);
+    const login = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: registerDto.email, password: registerDto.password })
+      .expect(200);
     accessToken = login.body.accessToken;
   });
 

@@ -14,6 +14,8 @@ import { ClientModule } from './modules/client/client.module';
     ConfigModule.forRoot ({
       isGlobal : true,
       envFilePath : '.env',
+      ignoreEnvFile: process.env.NODE_ENV === 'test', // ← nuevo
+
     }),
     PrismaModule, AuthModule, NotificationsModule, UsersModule, ClientModule
   ],

@@ -1,11 +1,15 @@
 {
-  "moduleFileExtensions": ["js", "json", "ts"],
+  "moduleFileExtensions": ["js", "json", "ts", "mjs"],
   "rootDir": "../",
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
-    "^.+\\.(t|j)s$": "ts-jest"
+    "^.+\\.ts$": ["ts-jest", { "tsconfig": { "types": ["jest", "node"] } }],
+    "^.+\\.(js|mjs|cjs)$": ["ts-jest", { "tsconfig": { "types": ["jest", "node"], "allowJs": true, "module": "CommonJS", "moduleResolution": "node" }, "diagnostics": false }]
   },
+  "transformIgnorePatterns": [
+    "node_modules/(?!(msw|@mswjs|@open-draft|@bundled-es-modules|outvariant|headers-polyfill|path-to-regexp|strict-event-emitter|rettime)/)"
+  ],
   "moduleNameMapper": {
     "^src/(.*)$": "<rootDir>/src/$1"
   }

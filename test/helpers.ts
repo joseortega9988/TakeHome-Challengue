@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env.test' }); // ← primera línea, antes de todo
+process.env.NODE_ENV = 'test'; // ← mover aquí, antes de los imports de NestJS
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';

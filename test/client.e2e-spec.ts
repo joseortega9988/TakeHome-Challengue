@@ -1,8 +1,11 @@
-import * as dotenv from 'dotenv';
-dotenv.config({ path: '.env.test' });
-
 import request from 'supertest';
 import { createTestApp } from './helpers';
+import { setupServer } from 'msw/node';
+import { http, HttpResponse } from 'msw';
+
+const POKE_URL = 'https://pokeapi.co/api/v2/pokemon/:id';
+
+const server = setupServer();
 
 const registerDto = {
   email: 'client_user@example.com',
@@ -17,12 +20,15 @@ describe('Client (e2e)', () => {
   let accessToken: string;
 
   beforeAll(async () => {
+    server.listen({ onUnhandledRequest: 'bypass' });
+
     const res = await createTestApp();
     app = res.app;
     prisma = res.prisma;
   });
 
   beforeEach(async () => {
+    server.resetHandlers();
     await prisma.cleanDatabase();
     await request(app.getHttpServer()).post('/auth/register').send(registerDto).expect(201);
     const login = await request(app.getHttpServer())
@@ -30,41 +36,25 @@ describe('Client (e2e)', () => {
       .send({ email: registerDto.email, password: registerDto.password })
       .expect(200);
     accessToken = login.body.accessToken;
-
-    // 👇 LIMPIAMOS LOS MOCKS DE JEST ANTES DE CADA PRUEBA
-    jest.restoreAllMocks();
   });
 
   afterAll(async () => {
     await prisma.cleanDatabase();
     await app.close();
+    server.close();
   });
-
-  // Función ayudante para mockear Fetch fácilmente
-  const mockFetchResponse = (responses: Record<number, { status: number; data?: any }>) => {
-    jest.spyOn(global, 'fetch').mockImplementation(async (url: any) => {
-      const id = parseInt(url.split('/').pop(), 10);
-      const mock = responses[id];
-
-      if (!mock) throw new Error(`Fetch no mockeado para la URL: ${url}`);
-      if (mock.status >= 400) return { ok: false, status: mock.status } as any;
-
-      return {
-        ok: true,
-        status: mock.status,
-        json: async () => mock.data,
-      } as any;
-    });
-  };
 
   // ─── Happy path ───────────────────────────────────────────────────────────
 
   it('adds pokemons and returns names (mocked PokeAPI)', async () => {
-    // 👇 Mockeamos la respuesta usando Jest
-    mockFetchResponse({
-      1: { status: 200, data: { name: 'bulbasaur' } },
-      4: { status: 200, data: { name: 'charmander' } },
-    });
+    const names: Record<string, string> = { '1': 'bulbasaur', '4': 'charmander' };
+    server.use(
+      http.get(POKE_URL, ({ params }) => {
+        const name = names[params.id as string];
+        if (!name) return new HttpResponse(null, { status: 404 });
+        return HttpResponse.json({ name });
+      }),
+    );
 
     const res = await request(app.getHttpServer())
       .post('/client/pokemon/add')
@@ -74,8 +64,8 @@ describe('Client (e2e)', () => {
 
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body).toHaveLength(2);
-    const names = res.body.map((p: any) => p.pokemonName).sort();
-    expect(names).toEqual(['bulbasaur', 'charmander'].sort());
+    const resNames = res.body.map((p: any) => p.pokemonName).sort();
+    expect(resNames).toEqual(['bulbasaur', 'charmander'].sort());
   });
 
   // ─── Auth ─────────────────────────────────────────────────────────────────
@@ -132,9 +122,9 @@ describe('Client (e2e)', () => {
   // ─── Fallos de PokeAPI ────────────────────────────────────────────────────
 
   it('returns unknown-{id} when PokeAPI returns 404', async () => {
-    mockFetchResponse({
-      999: { status: 404 }, // Simulamos que el 999 no existe (Adiós Gimmighoul)
-    });
+    server.use(
+      http.get(POKE_URL, () => new HttpResponse(null, { status: 404 })),
+    );
 
     const res = await request(app.getHttpServer())
       .post('/client/pokemon/add')
@@ -146,8 +136,9 @@ describe('Client (e2e)', () => {
   });
 
   it('returns unknown-{id} when PokeAPI is unreachable', async () => {
-    // Simulamos un error de red catastrófico
-    jest.spyOn(global, 'fetch').mockRejectedValue(new Error('Network error'));
+    server.use(
+      http.get(POKE_URL, () => HttpResponse.error()),
+    );
 
     const res = await request(app.getHttpServer())
       .post('/client/pokemon/add')
@@ -161,10 +152,12 @@ describe('Client (e2e)', () => {
   // ─── Edge cases ───────────────────────────────────────────────────────────
 
   it('handles mixed valid and invalid PokeAPI responses', async () => {
-    mockFetchResponse({
-      1: { status: 200, data: { name: 'bulbasaur' } },
-      999: { status: 404 },
-    });
+    server.use(
+      http.get(POKE_URL, ({ params }) => {
+        if (params.id === '1') return HttpResponse.json({ name: 'bulbasaur' });
+        return new HttpResponse(null, { status: 404 });
+      }),
+    );
 
     const res = await request(app.getHttpServer())
       .post('/client/pokemon/add')
@@ -177,9 +170,9 @@ describe('Client (e2e)', () => {
   });
 
   it('adds a single pokemon correctly', async () => {
-    mockFetchResponse({
-      25: { status: 200, data: { name: 'pikachu' } },
-    });
+    server.use(
+      http.get(POKE_URL, () => HttpResponse.json({ name: 'pikachu' })),
+    );
 
     const res = await request(app.getHttpServer())
       .post('/client/pokemon/add')
