@@ -31,21 +31,12 @@ export class PrismaService
         await this.$disconnect();
         console.log ('Database disconnected');
     }
-    async cleanDatabase (){
-        if (process.env.NODE_ENV === "production"){
-            throw new Error ("Cannot clean database in production")
-        }
-        
-        const models = Reflect.ownKeys(this).filter (
-            (key) => typeof key === 'string' && !key.startsWith('_'),
-        );
-        
-        return Promise.all (
-            models.map ((modelKey) => {
-                if (typeof modelKey === "string"){
-                    return this [modelKey].deleteMany ();
-                }
-            })
-        )
+    async cleanDatabase() {
+    if (process.env.NODE_ENV === 'production') {
+        throw new Error('Cannot clean database in production');
+    }
+
+    await this.userPokemon.deleteMany();
+    await this.user.deleteMany();
     }
 }

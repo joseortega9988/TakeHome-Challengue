@@ -52,6 +52,8 @@ model User {
 
   notifications Notification[]
 
+// 1. Agregamos la relación con la nueva tabla
+  pokemons      UserPokemon[]
 
   @@index([email])
   @@map("users")
@@ -74,4 +76,14 @@ model Notification {
   updatedAt DateTime @updatedAt
 
 
+}
+
+
+model UserPokemon {
+  id        String   @id @default(uuid())
+  userId    String
+  pokemonId Int      // Almacenamos el ID numérico del Pokémon (ej: 1 para Bulbasaur)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_pokemons")
 }

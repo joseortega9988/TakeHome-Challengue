@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { UsersModule } from './modules/users/users.module';
+import { ClientModule } from './modules/client/client.module';
 
 @Global ()
 @Module({
@@ -13,8 +14,11 @@ import { UsersModule } from './modules/users/users.module';
     ConfigModule.forRoot ({
       isGlobal : true,
       envFilePath : '.env',
+      // use .env.test instead of the real database 
+      ignoreEnvFile: process.env.NODE_ENV === 'test',
+
     }),
-    PrismaModule, AuthModule, NotificationsModule, UsersModule
+    PrismaModule, AuthModule, NotificationsModule, UsersModule, ClientModule
   ],
   controllers: [AppController],
   providers: [AppService],

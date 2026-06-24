@@ -1,10 +1,19 @@
-import { Injectable } from '@nestjs/common';
+
+
+
+import { PokemonClient } from 'src/modules/client/client.service';
+
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, User } from '@prisma/client';
+import { PokeApiResponseDto } from '../client/dto/pokemon-API-response.dto'; // Asegúrate de que este DTO exista
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private clientService: PokemonClient, // ← nuevo
+  ) {}
 
   // Buscar un usuario por Email (Usado por AuthService para Login y Registro)
   async findByEmail(email: string): Promise<User | null> {
@@ -20,14 +29,7 @@ export class UsersService {
     });
   }
 
-  // Crear un nuevo usuario (Usado por AuthService al registrar)
-  async create(data: Prisma.UserCreateInput): Promise<User> {
-    return this.prisma.user.create({
-      data,
-    });
-  }
-
-  // Actualizar el Refresh Token de un usuario
+    // Actualizar el Refresh Token de un usuario
   async updateRefreshToken(userId: string, refreshToken: string | null): Promise<void> {
     await this.prisma.user.update({
       where: { id: userId },
@@ -35,7 +37,26 @@ export class UsersService {
     });
   }
 
-  // Aquí es donde irá tu lógica de obtener el usuario con sus Pokemones
+// Crear un nuevo usuario con Pokemons iniciales (Guardando solo el ID)
+  async create(data: Prisma.UserCreateInput, pokemonIds?: number[]): Promise<User> {
+    const pokemonsToCreate: { pokemonId: number }[] = [];
+
+    if (pokemonIds && pokemonIds.length > 0) {
+      pokemonsToCreate.push(...pokemonIds.map(id => ({ pokemonId: id })));
+    }
+
+    // Guardamos el usuario junto con sus Pokémons (solo el ID) en la BD
+    return this.prisma.user.create({
+      data: {
+        ...data,
+        pokemons: pokemonsToCreate.length > 0 ? {
+          create: pokemonsToCreate,
+        } : undefined,
+      },
+    });
+  }
+
+  // Obtener el perfil del usuario con nombres de pokemons fetched from PokeAPI
   async getUserProfile(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -45,9 +66,31 @@ export class UsersService {
         firstName: true,
         lastName: true,
         role: true,
-        // pokemons: true // Descomentar cuando agregues el modelo en Prisma
+        createdAt: true,
+        updatedAt: true,
+        pokemons: true,
       },
     });
-    return user;
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Fetch pokemon names from PokeAPI
+
+    const pokemonIds = user.pokemons.map((p) => p.pokemonId);
+    const pokemonDetails = await this.clientService.getPokemonNames(pokemonIds); // ← delega
+
+
+    return {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      pokemons: pokemonDetails,
+    };
   }
 }

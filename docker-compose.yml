@@ -1,21 +1,47 @@
 services:
+  app:
+    depends_on: 
+      postgres :
+        condition: service_healthy   # wait for healthcheck to pass
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: home_challenge_app
+    restart: always
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:CTfr9619@postgres:5432/home_challenge
+    ports: 
+      - "3001:3001"
+
   postgres:
     image: postgres:16
-
     container_name: home_challenge_db
-
     restart: always
-
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: CTfr9619
       POSTGRES_DB: home_challenge
-
     ports:
       - "5432:5432"
-
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres_test:
+    image: postgres:16
+    container_name: home_challenge_db_test
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: CTfr9619
+      POSTGRES_DB: home_challenge_test
+    ports:
+      - "5433:5432"
 
 volumes:
   postgres_data:

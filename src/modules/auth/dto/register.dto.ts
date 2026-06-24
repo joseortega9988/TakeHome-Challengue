@@ -1,11 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  Matches,
-  MinLength,
+    IsEmail,
+    IsNotEmpty,
+    IsOptional,
+    IsString,
+    Matches,
+    MinLength,
+    IsArray,
+    IsNumber,
 } from 'class-validator';
 //Data transfert Object (dto) for user registration
 
@@ -50,4 +52,14 @@ export class RegisterDto {
     @IsOptional()
     @IsString()
     lastName?: string;
+
+    @ApiProperty({
+    description: 'Array of Pokemon IDs to assign to the user upon creation',
+    example: [1, 4, 7], // Bulbasaur, Charmander, Squirtle
+    required: false,
+    })
+    @IsOptional()
+    @IsArray()
+    @IsNumber({}, { each: true, message: 'Each Pokemon ID must be a number' })
+    pokemonIds?: number[];
 }
