@@ -11,6 +11,10 @@ jobs:
       - checkout
       - node/install-packages:
           pkg-manager: npm
+      # ADDING PRISMA 
+      - run:
+          name: Generate Prisma Client
+          command: npx prisma generate
       - run:
           command: npm run test
           name: Run tests
