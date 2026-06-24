@@ -14,7 +14,8 @@ import { ClientModule } from './modules/client/client.module';
     ConfigModule.forRoot ({
       isGlobal : true,
       envFilePath : '.env',
-      ignoreEnvFile: process.env.NODE_ENV === 'test', // ← nuevo
+      // use .env.test instead of the real database 
+      ignoreEnvFile: process.env.NODE_ENV === 'test',
 
     }),
     PrismaModule, AuthModule, NotificationsModule, UsersModule, ClientModule

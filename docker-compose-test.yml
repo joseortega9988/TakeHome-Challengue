@@ -1,0 +1,34 @@
+services:
+  postgres_test:
+    image: postgres:16
+    container_name: home_challenge_db_test
+    restart: "no"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: CTfr9619
+      POSTGRES_DB: home_challenge_test
+    # No host port needed — test_runner reaches it over the Docker network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  test_runner:
+    depends_on:
+      postgres_test:
+        condition: service_healthy   # waits for DB to be ready
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test                   # lean stage: no tsc build
+    container_name: home_challenge_test_runner
+    restart: "no"
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:CTfr9619@postgres_test:5432/home_challenge_test
+      JWT_SECRET: test-secret
+      JWT_REFRESH_SECRET: test-refresh-secret
+      POKE_BASE_API: https://pokeapi.co/api/v2/pokemon
+    command: >
+      sh -c "npx prisma migrate deploy && npm run test:e2e"
