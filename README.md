@@ -31,7 +31,7 @@ CAMBIAR LA CLAVE DE POSTGRESS EN EL ARCHIVO docker-compeso.yml a la que este con
 1. correr este comando en la terminal de GIT BASH : 
 
    ```
-   docker-compose up
+   docker-compose up f
    ```
 
 2. Abrir la documentación Swagger:
