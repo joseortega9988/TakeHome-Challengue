@@ -1,3 +1,4 @@
+// client e2e spec
 import request from 'supertest';
 import { createTestApp } from './helpers';
 import { setupServer } from 'msw/node';
