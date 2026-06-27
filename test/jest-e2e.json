@@ -12,5 +12,12 @@
   ],
   "moduleNameMapper": {
     "^src/(.*)$": "<rootDir>/src/$1"
-  }
+  },
+  "collectCoverageFrom": [
+    "src/**/*.(t|j)s",
+    "!src/**/*.e2e-spec.ts",
+    "!src/main.ts"
+  ],
+  "coverageDirectory": "coverage",
+  "coverageReporters": ["lcov", "text-summary"]
 }

@@ -42,7 +42,7 @@ jobs:
 
       - run:
           name: Run e2e tests
-          command: npm run test:e2e
+          command: npm run test:e2e -- --coverage
 
       - run:
           name: Build app
