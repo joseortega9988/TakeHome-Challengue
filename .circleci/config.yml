@@ -40,8 +40,7 @@ jobs:
 
       - run:
           name: Run e2e tests
-          command: npm run test:cov -r 3w0JBqaZeT5zlX6d0rgedlRAXDQQVXuQv
-
+          command: COVERALLS_REPO_TOKEN=3w0JBqaZeT5zlX6d0rgedlRAXDQQVXuQv npm run test:cov 
       - run:
           name: Build app
           command: npm run build
