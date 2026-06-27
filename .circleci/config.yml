@@ -3,31 +3,54 @@ version: 2.1
 orbs:
   node: circleci/node@7.2.1
 
-
 jobs:
-  build_and_test: # this can be any name you choose
-    executor: node/default # use the default executor defined within the orb
+  build_and_test:
+    docker:
+      - image: cimg/node:26.00              # primary container
+      - image: cimg/postgres:16.0           # sidecar — reachable at localhost:5432
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: CTfr9619
+          POSTGRES_DB: home_challenge_test
+
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:CTfr9619@localhost:5432/home_challenge_test
+      JWT_SECRET: test-secret
+      JWT_REFRESH_SECRET: test-refresh-secret
+      POKE_BASE_API: https://pokeapi.co/api/v2/pokemon
+
     steps:
       - checkout
+
       - node/install-packages:
           pkg-manager: npm
-      # ADDING PRISMA 
+
       - run:
           name: Generate Prisma Client
           command: npx prisma generate
+
       - run:
+          name: Wait for Postgres
+          command: dockerize -wait tcp://localhost:5432 -timeout 30s
+
+      - run:
+          name: Run migrations
+          command: npx prisma migrate deploy
+
+      - run:
+          name: Run e2e tests
           command: npm run test:e2e
-          name: Run tests
+
       - run:
-          command: npm run dev
           name: Build app
+          command: npm run build
+
       - persist_to_workspace:
           root: ~/project
           paths: .
 
 workflows:
-  build_test_deploy: # this can be any name you choose
+  build_test_deploy:
     jobs:
       - build_and_test
-
-
