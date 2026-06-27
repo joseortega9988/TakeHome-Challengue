@@ -15,9 +15,9 @@ jobs:
 
     environment:
       NODE_ENV: test
-      DATABASE_URL: postgresql://postgres:CTfr9619@localhost:5432/home_challenge_test
-      JWT_SECRET: test-secret
-      JWT_REFRESH_SECRET: test-refresh-secret
+      DATABASE_URL: postgresql://postgres:$POSTGRES_PASSWORD@localhost:5432/home_challenge_test
+      JWT_SECRET: $JWT_SECRET
+      JWT_REFRESH_SECRET: $JWT_REFRESH_SECRET
       POKE_BASE_API: https://pokeapi.co/api/v2/pokemon
 
     steps:

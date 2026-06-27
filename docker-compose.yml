@@ -10,7 +10,12 @@ services:
     restart: always
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://postgres:CTfr9619@postgres:5432/home_challenge
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      POKE_BASE_API: ${POKE_BASE_API}
+
     ports: 
       - "3001:3001"
 
@@ -20,7 +25,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: CTfr9619
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: home_challenge
     ports:
       - "5432:5432"
@@ -38,7 +43,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: CTfr9619
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: home_challenge_test
     ports:
       - "5433:5432"
