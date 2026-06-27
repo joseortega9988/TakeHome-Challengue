@@ -43,8 +43,9 @@ jobs:
           command: npm run test:e2e
 
       - run:
-          name: Build app
-          command: npm run build
+          name: Build app and send coveralls upload
+          command: npm run build  && coveralls/upload
+
 
       - persist_to_workspace:
           root: ~/project
