@@ -49,9 +49,9 @@ jobs:
           command: npm run build
       
       - coveralls/upload:
-        parallel: true
-        flag_name: Test 1
-        verbose: true
+          parallel: true
+          flag_name: Test 1
+          verbose: true
 
 
       - persist_to_workspace:
