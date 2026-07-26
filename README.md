@@ -1,5 +1,13 @@
 # Home Challenge Nest API
 
+## Badges
+
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/joseortega9988/TakeHome-Challengue/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/joseortega9988/TakeHome-Challengue/tree/main)
+
+[![Coverage Status](https://coveralls.io/repos/github/joseortega9988/TakeHome-Challengue/badge.svg)](https://coveralls.io/github/joseortega9988/TakeHome-Challengue)
+
+
+
 ## Descripción general
 Este proyecto es una API construida con NestJS que incluye tres módulos principales:
 - `Auth`: controla el registro, login, refresh token y logout.
