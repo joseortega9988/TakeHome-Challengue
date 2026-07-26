@@ -19,7 +19,7 @@ jobs:
       JWT_SECRET: $JWT_SECRET
       JWT_REFRESH_SECRET: $JWT_REFRESH_SECRET
       POKE_BASE_API: https://pokeapi.co/api/v2/pokemon
-      COVERALLS_REPO_TOKEN : 3w0JBqaZeT5zlX6d0rgedlRAXDQQVXuQv
+      COVERALLS_REPO_TOKEN : $COVERALLS_REPO_TOKEN
 
     steps:
       - checkout
@@ -41,7 +41,7 @@ jobs:
 
       - run:
           name: Run e2e tests
-          command: COVERALLS_REPO_TOKEN=3w0JBqaZeT5zlX6d0rgedlRAXDQQVXuQv npm run test:cov 
+          command: COVERALLS_REPO_TOKEN npm run test:cov 
       - run:
           name: Build app
           command: npm run build
