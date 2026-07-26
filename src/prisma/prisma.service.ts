@@ -36,7 +36,9 @@ export class PrismaService
         throw new Error('Cannot clean database in production');
     }
 
+    await this.notification.deleteMany();
     await this.userPokemon.deleteMany();
     await this.user.deleteMany();
     }
+
 }
