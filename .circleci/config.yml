@@ -47,7 +47,6 @@ jobs:
           command: npm run build
       
       - coveralls/upload:
-          COVERALLS_REPO_TOKEN : 3w0JBqaZeT5zlX6d0rgedlRAXDQQVXuQv
           parallel: true
           flag_name: Test 1
           verbose: true
