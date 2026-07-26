@@ -29,7 +29,7 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy , 'jwt-refre
     // validate refresh token  
     async validate (req: Request, payload: {sub:string ; email: string}){
         console.log ('RefreshTokenStrategy.validate called');
-        console.log ('Payload', { sub: payload.sub, email: payload.email});
+        console.log ('Payload', { id: payload.sub, email: payload.email});
 
         const authHeader = req.headers.authorization ;
 
