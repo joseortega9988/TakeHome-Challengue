@@ -1,5 +1,9 @@
 # Home Challenge Nest API
 
+## App Running on 
+
+- Try it out right now: [API Swagger ](https://rocky-caverns-91721-40ef535db0e7.herokuapp.com/api/docs/)
+
 ## Badges
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/joseortega9988/TakeHome-Challengue/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/joseortega9988/TakeHome-Challengue/tree/main)
@@ -144,3 +148,6 @@ notifications
 5. Si el token expira, usar `POST /api/v1/auth/refresh` con el refresh token.
 
 
+## route 
+
+- Local : [API Swagger][http://localhost:3001/api/docs/]
