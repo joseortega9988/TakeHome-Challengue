@@ -62,4 +62,19 @@ describe('Users (e2e)', () => {
     const names = res.body.pokemons.map((p: any) => p.name).sort();
     expect(names).toEqual(['bulbasaur', 'charmander'].sort());
   });
+  it('should register a user with initial pokemonIds', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({
+        email: 'pokemon_user@example.com',
+        password: 'Password1@',
+        firstName: 'Poke',
+        lastName: 'User',
+        pokemonIds: [1, 4, 7],
+      })
+      .expect(201);
+
+    expect(res.body).toHaveProperty('accessToken');
+    expect(res.body.user.email).toBe('pokemon_user@example.com');
+  });
 });

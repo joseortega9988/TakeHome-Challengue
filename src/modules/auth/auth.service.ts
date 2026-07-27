@@ -1,3 +1,4 @@
+//auth.service.ts
 import { ConflictException, Injectable, InternalServerErrorException, UnauthorizedException} from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { UsersService } from '../users/users.service'; 

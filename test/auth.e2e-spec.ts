@@ -2,6 +2,7 @@
 import request from 'supertest';
 import { createTestApp } from './helpers';
 import nock from 'nock';
+import { JwtService } from '@nestjs/jwt';
 
 describe('Auth (e2e)', () => {
   let app: any;
@@ -145,4 +146,71 @@ describe('Auth (e2e)', () => {
       .send({ email: registerDto.email, password: 'WrongPassword1@' })
       .expect(401);
   });
+  it('should reject refresh with a stale token after re-login rotates it', async () => {
+  const dto = {
+    email: 'rotate_user@example.com',
+    password: 'Password1@',
+    firstName: 'Rotate',
+    lastName: 'User',
+  };
+
+  const registerRes = await request(app.getHttpServer())
+    .post('/auth/register')
+    .send(dto)
+    .expect(201);
+
+  const staleRefreshToken = registerRes.body.refreshToken;
+
+  // Second login rotates the stored refresh token
+  await request(app.getHttpServer())
+    .post('/auth/login')
+    .send({ email: dto.email, password: dto.password })
+    .expect(200);
+
+  await request(app.getHttpServer())
+    .post('/auth/refresh')
+    .set('Authorization', `Bearer ${staleRefreshToken}`)
+    .expect(401);
+  });
+
+
+  it('should reject refresh when the token payload points to a non-existent user', async () => {
+    const jwtService = new JwtService({ secret: process.env.JWT_REFRESH_SECRET });
+    const fakeToken = jwtService.sign(
+      { sub: '00000000-0000-0000-0000-000000000000', email: 'ghost@example.com' },
+      { expiresIn: '15m' },
+    );
+
+    await request(app.getHttpServer())
+      .post('/auth/refresh')
+      .set('Authorization', `Bearer ${fakeToken}`)
+      .expect(401);
+  });
+
+  it('should reject registration with an email that already exists', async () => {
+  const dto = {
+    email: 'duplicate_user@example.com',
+    password: 'Password1@',
+    firstName: 'Dup',
+    lastName: 'User',
+  };
+
+  await request(app.getHttpServer())
+    .post('/auth/register')
+    .send(dto)
+    .expect(201);
+
+  await request(app.getHttpServer())
+    .post('/auth/register')
+    .send(dto)
+    .expect(409);
+  });
+
+  it('should reject login with a non-existent email', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: 'nobody_here@example.com', password: 'Password1@' })
+      .expect(401);
+  });
+
 });
