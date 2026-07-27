@@ -58,7 +58,8 @@ async function bootstrap() {
       },
       'JWT-refresh',
     )
-    .addServer('http://localhost:3001', 'Development server')
+    .addServer('http://localhost:3001', 'Local')
+    .addServer('https://rocky-caverns-91721-40ef535db0e7.herokuapp.com', 'Production')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
