@@ -6,7 +6,7 @@
   "private": true,
   "license": "Quien sabrá",
   "engines": {
-    "node": "26.x"
+    "node": "26.0"
   },
   "scripts": {
     "db:up": "docker compose up -d postgres",
