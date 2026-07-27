@@ -5,6 +5,9 @@
   "author": "JFL0WS",
   "private": true,
   "license": "Quien sabrá",
+  "engines": {
+    "node": "26.x"
+  },
   "scripts": {
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
