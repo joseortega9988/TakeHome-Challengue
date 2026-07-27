@@ -128,7 +128,7 @@ That's why if the controller provide the proper answer the test has passed.
 - `POST /api/v1/notifications`
 
 #### client 
-
+## 
 - `GET /api/v1/notifications`
 #### notifications
 notifications
